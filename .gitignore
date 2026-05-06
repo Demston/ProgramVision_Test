@@ -1,0 +1,39 @@
+gitignore
+
+# Byte code
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Venv
+venv/
+.venv/
+env/
+bin/
+include/
+lib/
+share/
+
+# IDE extensions
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Vars of Venv
+.env
+.flaskenv
+*.local
+auth.json
+secrets.yaml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
