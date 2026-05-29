@@ -1,5 +1,9 @@
 gitignore
 
+# Project
+my_db/*
+!my_db/.gitkeep
+
 # Byte code
 __pycache__/
 *.py[cod]
