@@ -2,13 +2,11 @@ import os
 import cv2
 from ultralytics import YOLO
 from service.face_verifier import verify_face_async
+from config import *
 
 # Загружаем модель (nano-версия — самая быстрая)
-model = YOLO('yolov8n.pt')
-cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-
-script_dir = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(script_dir, "..", "my_db")
+model = YOLO(yolo8n_model)
+cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)       # Индекс камеры!
 
 # Узнаем центр кадра
 WIDTH = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -57,7 +55,7 @@ while cap.isOpened():
         # Вызываем асинхронную проверку. Работает мгновенно в фоне.
         user_name = verify_face_async(frame, (x1, y1, x2, y2), DB_PATH)
 
-        if user_name != "UNKNOWN":
+        if user_name != "UNKNOWN" and user_name:
             color = (0, 255, 0)  # Зеленый — Свой
             label = f"OWNER: {user_name.upper()} (ACCESS GRANTED)"
         else:

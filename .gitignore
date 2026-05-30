@@ -1,8 +1,8 @@
 gitignore
 
 # Project
-my_db/*
-!my_db/.gitkeep
+dataset/*
+!dataset/.gitkeep
 
 # Byte code
 __pycache__/

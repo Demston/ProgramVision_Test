@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from config import *
 
 # Camera init (0-default, 1,2 etc - ext)
 cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
@@ -10,7 +11,7 @@ if not cap.isOpened():
     print("Camera don't open")
     exit()
 
-face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+face_cascade = cv2.CascadeClassifier(haarcascades)
 
 # Standart detection of people
 

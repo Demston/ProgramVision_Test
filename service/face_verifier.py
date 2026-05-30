@@ -1,5 +1,4 @@
 import os
-import cv2
 import threading
 from deepface import DeepFace
 
@@ -14,7 +13,7 @@ MAX_MISSES = 2       # Допустимое число промахов, пок�
 def _async_worker(person_crop, db_path):
     global is_processing, miss_counter, current_user
     try:
-        # Запуск верификации. enforce_detection=False спасет от падений, если лицо смазано
+        # Запуск верификации. Enforce_detection=False спасет от падений, если лицо смазано
         dfs = DeepFace.find(img_path=person_crop, db_path=db_path,
                             enforce_detection=False, silent=True)
         match_name = "UNKNOWN"
@@ -39,7 +38,7 @@ def _async_worker(person_crop, db_path):
 
     except Exception as e:
         # Выводим ошибку в консоль, если она вдруг случится
-        print(f"[ERROR] Ошибка биометрии: {e}")
+        # print(f"[ERROR] Ошибка биометрии: {e}")
         with lock:
             miss_counter += 1
             if miss_counter >= MAX_MISSES:
