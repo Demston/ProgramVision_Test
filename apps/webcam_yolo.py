@@ -1,8 +1,10 @@
-import os
 import cv2
 from ultralytics import YOLO
-from service.face_verifier import verify_face_async
 from config import *
+from service.face_verifier import verify_face_async
+from service.net_bridge import send_alert_signal
+import time
+
 
 # Загружаем модель (nano-версия — самая быстрая)
 model = YOLO(yolo8n_model)
@@ -14,6 +16,10 @@ HEIGHT = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 CENTER_X, CENTER_Y = WIDTH // 2, HEIGHT // 2
 # "Мертвая зона" в пикселях (чтобы мотор не дрожал в центре)
 DEADZONE = 40
+
+# Таймер защиты от спама
+unknown_start_time = None
+alert_sent = False
 
 while cap.isOpened():
     ret, frame = cap.read()
@@ -58,9 +64,22 @@ while cap.isOpened():
         if user_name != "UNKNOWN" and user_name:
             color = (0, 255, 0)  # Зеленый — Свой
             label = f"OWNER: {user_name.upper()} (ACCESS GRANTED)"
+            unknown_start_time = None
+            alert_sent = False
+
         else:
             color = (0, 0, 255)  # Красный — Чужой
             label = "UNKNOWN: TARGET LOCKED"
+
+            # === ЛОГИКА ТАЙМЕРА ТРЕВОГИ И СЕТЕВОГО МОСТА ===
+            if unknown_start_time is None:
+                unknown_start_time = time.time()  # Засекаем время появления чужака
+
+            # Если чужак находится в кадре непрерывно больше N секунд и сигнал еще не слали
+            elif time.time() - unknown_start_time >= 3.0 and not alert_sent:
+                cv2.imwrite(ALERT_IMG_PATH, frame)  # Сохраняем текущий кадр на диск
+                send_alert_signal()  # Пинаем бота по сети через наш новый модуль
+                alert_sent = True    # Сбрасываем флаг
 
             if abs(error_x) > DEADZONE:
                 cmd = f"MOVE {'RIGHT' if error_x > 0 else 'LEFT'} by {abs(error_x)} px"
@@ -80,6 +99,8 @@ while cap.isOpened():
     else:
         # Если распозазнных людей в кадре нет — статус сбрасывается
         user_name = "UNKNOWN"
+        unknown_start_time = None
+        alert_sent = False
 
     # Статичный прицел центра экрана
     cv2.drawMarker(frame, (CENTER_X, CENTER_Y), (255, 255, 255), cv2.MARKER_CROSS, 20, 2)
